@@ -35,7 +35,8 @@ async def on_message(message):
         if len(res_text) > 2000:
             with open('res.txt','w') as f:
                 f.write(res_text)
-            await message.channel.send(file=discord.File('res.txt', filename='長文だよ～'))
-        await message.channel.send(res_text)
+            await message.channel.send(file=discord.File('res.txt'))
+        else:
+            await message.channel.send(res_text)
 
 client.run(os.environ["DISCORD_TOKEN"])
