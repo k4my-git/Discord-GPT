@@ -2,6 +2,9 @@
 
 import os
 import discord
+import openai
+
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # インテントの生成
 intents = discord.Intents.default()
@@ -23,7 +26,13 @@ async def on_message(message):
         return
 
     # メッセージが"$hello"で始まっていたら"Hello!"と応答
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
+    if message.content.startswith('$'):
+        res = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": message.content}]
+        )
+
+        res_text = res["choices"][0]["message"]["content"]
+        await message.channel.send('res_text')
 
 client.run(os.environ["DISCORD_TOKEN"])
