@@ -38,5 +38,18 @@ async def on_message(message):
             await message.channel.send(file=discord.File('res.txt'))
         else:
             await message.channel.send(res_text)
+    
+    if message.content.startswith('%'):
+        response = openai.Image.create(
+            prompt=message.content[1:],
+            n=1,
+            size="1024x1024"
+        )
+        image_url = response['data'][0]['url']
+        embed = discord.Embed()
+        embed.set_image(url=image_url)
+        
+        await message.channel.send(embed=embed)
+        
 
 client.run(os.environ["DISCORD_TOKEN"])
