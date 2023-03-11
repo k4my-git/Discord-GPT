@@ -33,6 +33,8 @@ async def on_message(message):
 
         res_text = res["choices"][0]["message"]["content"]
         if len(res_text) > 2000:
+            with open('res.txt','w') as f:
+                f.write(res_text)
             await message.channel.send(file=discord.File('res.txt', filename='長文だよ～'))
         await message.channel.send(res_text)
 
