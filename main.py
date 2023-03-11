@@ -2,21 +2,28 @@
 
 import os
 import discord
-from discord import app_commands
 
-guild = discord.Object(617002556740206623)
+# インテントの生成
+intents = discord.Intents.default()
+intents.message_content = True
 
-tree = app_commands.CommandTree(bot)
+# クライアントの生成
+client = discord.Client(intents=intents)
 
-@bot.event
-async def on_ready(self):
-    print(f'{self.user}#{self.user.id} LOGIN!')
+# discordと接続した時に呼ばれる
+@client.event
+async def on_ready():
+    print(f'We have logged in as {client.user}')
 
-@bot.event
+# メッセージを受信した時に呼ばれる
+@client.event
 async def on_message(message):
-    if message.author.bot:
+    # 自分のメッセージを無効
+    if message.author == client.user:
         return
-    if message.content.startswith('test'):
-        await message.channel.send('ok')
+
+    # メッセージが"$hello"で始まっていたら"Hello!"と応答
+    if message.content.startswith('$hello'):
+        await message.channel.send('Hello!')
 
 bot.run(os.environ["DISCORD_TOKEN"])
