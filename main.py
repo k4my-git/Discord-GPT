@@ -1,4 +1,5 @@
 import os
+import re
 import discord
 import openai
 import asyncio
@@ -56,7 +57,12 @@ async def on_message(message):
 
             files = open(file_name, "rb")
             transcription = openai.Audio.transcribe("whisper-1", files, "ja")
-            restrans = transcription["text"].replace(" ","\n")
+            def is_japanese(str):
+                return True if re.search(r'[ぁ-んァ-ン]', str) else False
+            if is_japanese(transcription["text"]):
+                restrans = transcription["text"].replace(" ","\n")
+            else:
+                restrans = transcription["text"]
             if len(restrans) > 2000:
                 with open('res.txt','w') as f:
                     f.write(restrans)
