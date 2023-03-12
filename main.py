@@ -31,6 +31,7 @@ async def on_message(message):
                 f.write(res_text)
             await message.channel.send(file=discord.File('res.txt'))
         else:
+            await asyncio.sleep(3)
             await message.channel.send(res_text)
 
     if message.content.startswith('%'):
