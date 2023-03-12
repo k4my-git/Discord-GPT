@@ -32,7 +32,7 @@ async def on_message(message):
             await message.channel.send(file=discord.File('res.txt'))
         else:
             await message.channel.send(res_text)
-    
+
     if message.content.startswith('%'):
         response = openai.Image.create(
             prompt=message.content[1:],
@@ -42,40 +42,32 @@ async def on_message(message):
         image_url = response['data'][0]['url']
         embed = discord.Embed()
         embed.set_image(url=image_url)
-        
+
         await message.channel.send(embed=embed)
-    
-    if message.content.startswith('#play'):
-        voice_channel = message.author.voice.channel
 
-        if voice_channel:
-            voice_client = await voice_channel.connect()
+    if message.content.startswith('#whisper'):
+        try:
+            attachment = message.attachments[0]
+            file_name = attachment.filename
 
-            try:
-                attachment = message.attachments[0]
-                file_name = attachment.filename
+            # Download the file
+            await attachment.save(file_name)
 
-                # Download the file
-                await attachment.save(file_name)
+            files = open(file_name, "rb")
+            transcription = openai.Audio.transcribe("whisper-1", files, "ja")
+            restrans = transcription["text"].replace(" ","\n")
+            if len(restrans) > 2000:
+                with open('res.txt','w') as f:
+                    f.write(restrans)
+                await message.channel.send(file=discord.File('res.txt'))
+            else:
+                await message.channel.send(restrans)
 
-                # Play the audio file
-                source = discord.FFmpegPCMAudio(file_name)
-                voice_client.play(source)
+            # Remove the audio file from the local filesystem
+            os.remove(file_name)
 
-                # Wait for the audio to finish playing
-                while voice_client.is_playing():
-                    await asyncio.sleep(1)
+        except IndexError:
+            await message.channel.send("No audio file found as attachment.")
 
-                # Disconnect from the voice channel
-                await voice_client.disconnect()
-
-                # Remove the audio file from the local filesystem
-                os.remove(file_name)
-
-            except IndexError:
-                await message.channel.send("No audio file found as attachment.")
-        else:
-            await message.channel.send("You must be in a voice channel to use this command.")
-        
 
 client.run(os.environ["DISCORD_TOKEN"])
