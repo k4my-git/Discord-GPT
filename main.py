@@ -23,7 +23,7 @@ async def on_message(message):
     if message.content.startswith('$'):
         res = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{'role': 'system', 'content': 'あなたの名前は"チャーリー"です,メッセージを送る時とき冒頭に"ピッピッ・・・「スターピースデンキ」は、あなたの頼れるパートナー！"と言って改行してから話してください'},
+            messages=[{'role': 'system', 'content': 'あなたの名前は"チャーリー"です,罵る感じで会話してください'},
                       {"role": "user", "content": message.content[1:]}]
         )
 
