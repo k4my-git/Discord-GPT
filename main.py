@@ -55,12 +55,54 @@ async def on_message(message):
             # Download the file
             await attachment.save(file_name)
 
-            files = open(file_name, "rb")
-            transcription = openai.Audio.transcribe("whisper-1", files, "ja")
+            audio_file = open(file_name, "rb")
+            transcript = openai.audio.transcriptions.create(
+                file=audio_file,
+                model="whisper-1",
+                response_format="verbose_json",
+                timestamp_granularities=["segment"]
+            )
+
+            transcription = ""
+            for index, _dict in enumerate(transcript.segments):
+                cumsum_time = 0
+                index += 1
+                start_time = cumsum_time + _dict["start"]
+                end_time = cumsum_time + _dict["end"]
+                s_h, e_h = int(start_time//(60 * 60)), int(end_time//(60 * 60))
+                s_m, e_m = int(start_time//(60)), int(end_time//(60))
+                if start_time%60 < 10:
+                  s_s = str(start_time % 60)[:1]
+                  s_s = "0"+s_s
+                  s_sm = str(start_time % 60)[2:5]
+                else:
+                  s_s = str(start_time % 60)[:2]
+                  s_sm = str(start_time % 60)[3:6]
+            
+                if end_time%60 < 10:
+                  e_s = str(end_time % 60)[:1]
+                  e_s = "0"+e_s
+                  e_sm = str(end_time % 60)[2:5]
+                else:
+                  e_s = str(end_time % 60)[:2]
+                  e_sm = str(end_time % 60)[3:6]
+            
+                if len(s_sm) == 1:
+                  s_sm += "00"
+                elif len(s_sm) == 2:
+                  s_sm += "0"
+            
+                if len(e_sm) == 1:
+                  e_sm += "00"
+                elif len(e_sm) == 2:
+                  e_sm += "0"
+            
+                transcription += f'{index}\n{s_h:02}:{s_m:02}:{s_s},{s_sm} --> {e_h:02}:{e_m:02}:{e_s},{e_sm}\n{_dict["text"]}\n'
+                
             def is_japanese(str):
                 return True if re.search(r'[ぁ-んァ-ン]', str) else False
-            if is_japanese(transcription["text"]):
-                restrans = transcription["text"].replace(" ","\n")
+            if is_japanese(transcription):
+                restrans = transcription.replace(" ","\n")
             else:
                 restrans = transcription["text"]
             if len(restrans) > 2000:
