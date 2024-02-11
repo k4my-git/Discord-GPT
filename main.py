@@ -100,8 +100,7 @@ async def on_message(message):
                 transcription += f'{index}\n{s_h:02}:{s_m:02}:{s_s},{s_sm} --> {e_h:02}:{e_m:02}:{e_s},{e_sm}\n{_dict["text"]}\n\n'
                 
             #def is_japanese(str):
-            #    return True if re.search(r'[ぁ-んァ-ン]', str) else False
-                
+            #    return True if re.search(r'[ぁ-んァ-ン]', str) else False    
             #if is_japanese(transcription):
             #    restrans = transcription.replace(" ","\n")
             #else:
