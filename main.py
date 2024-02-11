@@ -104,7 +104,7 @@ async def on_message(message):
             if is_japanese(transcription):
                 restrans = transcription.replace(" ","\n")
             else:
-                restrans = transcription["text"]
+                restrans = transcription
             if len(restrans) > 2000:
                 with open('res.srt','w') as f:
                     f.write(restrans)
