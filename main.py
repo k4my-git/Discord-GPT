@@ -106,7 +106,7 @@ async def on_message(message):
             else:
                 restrans = transcription["text"]
             if len(restrans) > 2000:
-                with open('res.txt','w') as f:
+                with open('res.srt','w') as f:
                     f.write(restrans)
                 await message.channel.send(file=discord.File('res.txt'))
             else:
