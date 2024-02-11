@@ -101,16 +101,15 @@ async def on_message(message):
                 
             def is_japanese(str):
                 return True if re.search(r'[ぁ-んァ-ン]', str) else False
+                
             if is_japanese(transcription):
                 restrans = transcription.replace(" ","\n")
             else:
                 restrans = transcription
-            if len(restrans) > 2000:
-                with open('res.srt','w') as f:
-                    f.write(restrans)
-                await message.channel.send(file=discord.File('res.txt'))
-            else:
-                await message.channel.send(restrans)
+            print(restrans)
+            with open('res.srt','w') as f:
+                f.write(restrans)
+            await message.channel.send(file=discord.File('res.srt'))
 
             # Remove the audio file from the local filesystem
             os.remove(file_name)
