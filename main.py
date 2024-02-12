@@ -56,11 +56,14 @@ async def on_message(message):
             await attachment.save(file_name)
 
             audio_file = open(file_name, "rb")
+
+            prompts = message.content.replace('#whisper','')
             transcript = openai.audio.transcriptions.create(
                 file=audio_file,
                 model="whisper-1",
                 response_format="verbose_json",
-                timestamp_granularities=["segment"]
+                timestamp_granularities=["segment"],
+                prompt = prompts
             )
 
             transcription = ""
