@@ -102,7 +102,7 @@ async def on_message(message):
             
                 transcription += f'{index}\n{s_h:02}:{s_m:02}:{s_s},{s_sm} --> {e_h:02}:{e_m:02}:{e_s},{e_sm}\n{_dict["text"]}\n\n'
 
-            print(transcription)
+            #print(transcription)
             with open('res.srt','w') as f:
                 f.write(transcription)
             await message.channel.send(file=discord.File('res.srt'))
