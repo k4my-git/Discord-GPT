@@ -25,8 +25,8 @@ async def on_message(message):
             model="gpt-3.5-turbo-0613",
             messages=[{"role": "user", "content": message.content[1:]}]
         )
-
-        res_text = res["choices"][0]["message"]["content"]
+        res_text = res.choices[0].message.content
+        
         if len(res_text) > 2000:
             with open('res.txt','w') as f:
                 f.write(res_text)
