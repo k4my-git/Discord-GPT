@@ -36,12 +36,14 @@ async def on_message(message):
             await message.channel.send(res_text)
 
     if message.content.startswith('%'):
-        response = openai.Image.create(
+        response = client.images.generate(
+            model="dall-e-3",
             prompt=message.content[1:],
+            size="1024x1024",
+            quality="standard",
             n=1,
-            size="1024x1024"
         )
-        image_url = response['data'][0]['url']
+        image_url = response.data[0].url
         embed = discord.Embed()
         embed.set_image(url=image_url)
 
