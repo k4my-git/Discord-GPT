@@ -21,7 +21,7 @@ async def on_message(message):
         return
 
     if message.content.startswith('$'):
-        res = openai.ChatCompletion.create(
+        res = openai.chat.completions..create(
             model="gpt-3.5-turbo-0613",
             messages=[{"role": "user", "content": message.content[1:]}]
         )
