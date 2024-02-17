@@ -44,6 +44,7 @@ async def on_message(message):
             n=1,
         )
         image_url = response.data[0].url
+        await asyncio.sleep(5)
         embed = discord.Embed()
         embed.set_image(url=image_url)
 
