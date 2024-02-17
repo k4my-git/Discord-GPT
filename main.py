@@ -36,7 +36,7 @@ async def on_message(message):
             await message.channel.send(res_text)
 
     if message.content.startswith('%'):
-        response = client.images.generate(
+        response = openai.images.generate(
             model="dall-e-3",
             prompt=message.content[1:],
             size="1024x1024",
