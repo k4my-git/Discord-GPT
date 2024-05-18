@@ -5,6 +5,7 @@ from discord.ui import Select, View
 from discord import app_commands
 import openai
 import asyncio
+import time
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
@@ -34,27 +35,26 @@ class SelectView(View):
      )
      async def selectMenu(self, interaction: discord.Interaction, select: Select):
          global gpt_model
-         gpt_model = select.values
+         gpt_model = select.values[0]
          select.disabled = True
          await interaction.response.edit_message(view=self)
-         await interaction.followup.send(f"モデルを【{select.values}】に変更しました")
+         await interaction.followup.send(f"モデルを【{select.values[0]}】に変更しました")
 
 @tree.command(name="model_change",description="Chat-Gptのモデルの変更")
 async def main_gpt(interaction: discord.Interaction):
     view = SelectView()
-    view.selectMenu.add_option(
-        label="モデルを選択してください"
-    )
     await interaction.response.send_message("", view=view)
 
 @tree.command(name="gpt",description="Chat-Gptのコマンド")
 async def main_gpt(interaction: discord.Interaction, text:str):
+    start=time.time()
     res = openai.chat.completions.create(
             model=gpt_model,
             messages=[{"role": "user", "content": text}]
         )
     res_text = res.choices[0].message.content
-    await interaction.response.send_message(res_text,ephemeral=True)
+    end = time.time() - start
+    await interaction.response.send_message(f"{res_text}\n\nSpeed:{end}")
 
 @client.event
 async def on_message(message):
