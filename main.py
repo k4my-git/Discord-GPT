@@ -48,6 +48,7 @@ async def chat_model_change(interaction: discord.Interaction):
 
 @tree.command(name="chatgpt",description="Chat-Gptのコマンド")
 async def chat_gpt(interaction: discord.Interaction, text:str):
+    await interaction.response.defer()
     start=time.time()
     res = openai.chat.completions.create(
             model=chat_model,
@@ -55,32 +56,34 @@ async def chat_gpt(interaction: discord.Interaction, text:str):
         )
     res_text = res.choices[0].message.content
     end = time.time() - start
-    await interaction.response.send_message(f"{res_text}\n\nSpeed:{end}")
+    await interaction.followup.send(f"{res_text}\n\nSpeed:{end}")
 
 @tree.command(name="dalle",description="Dall-e-3のコマンド(画像)")
-async def dalle(interaction: discord.Interaction, text:str):
+async def dalle(interaction: discord.Interaction, prompt:str):
+    await interaction.response.defer()
     response = openai.images.generate(
             model="dall-e-3",
-            prompt=text,
+            prompt=prompt,
             size="1024x1024",
             quality="standard",
             n=1,
         )
     image_url = response.data[0].url
-    await asyncio.sleep(5)
+    #await asyncio.sleep(5)
     embed = discord.Embed()
     embed.set_image(url=image_url)
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
 
 @tree.command(name="whisper",description="Whisperのコマンド(音声)")
-async def whisper(interaction: discord.Interaction, text:str, audio: discord.Attachment):
+async def whisper(interaction: discord.Interaction, prompt:str, audio: discord.Attachment):
+    await interaction.response.defer()
     try:
         attachment = audio
         file_name = attachment.filename
         await attachment.save(file_name)
         audio_file = open(file_name, "rb")
 
-        prompts = text
+        prompts = prompt
         transcript = openai.audio.transcriptions.create(
             file=audio_file,
             model="whisper-1",
@@ -121,13 +124,13 @@ async def whisper(interaction: discord.Interaction, text:str, audio: discord.Att
         #print(transcription)
         with open('res.srt','w') as f:
             f.write(transcription)
-        await interaction.response.send_message(file=discord.File('res.srt'))
+        await interaction.followup.send(file=discord.File('res.srt'))
 
         # Remove the audio file from the local filesystem
         os.remove(file_name)
 
     except Exception as error:
-        await interaction.response.send_message(error)
+        await interaction.followup.send(error)
 
 
 
