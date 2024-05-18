@@ -16,7 +16,8 @@ client = discord.Client(intents=intents)
 
 tree = app_commands.CommandTree(client)
 
-gpt_model="gpt-4o"
+chat_model="gpt-4o"
+#audio_model="gpt-4o"
 
 @client.event
 async def on_ready():
@@ -34,27 +35,101 @@ class SelectView(View):
         ]
      )
      async def selectMenu(self, interaction: discord.Interaction, select: Select):
-         global gpt_model
-         gpt_model = select.values[0]
+         global chat_model
+         chat_model = select.values[0]
          select.disabled = True
          await interaction.response.edit_message(view=self)
-         await interaction.followup.send(f"モデルを【{select.values[0]}】に変更しました")
+         await interaction.followup.send(f"チャットモデルを【{select.values[0]}】に変更しました")
 
 @tree.command(name="model_change",description="Chat-Gptのモデルの変更")
 async def main_gpt(interaction: discord.Interaction):
     view = SelectView()
     await interaction.response.send_message("", view=view)
 
-@tree.command(name="gpt",description="Chat-Gptのコマンド")
+@tree.command(name="chatgpt",description="Chat-Gptのコマンド")
 async def main_gpt(interaction: discord.Interaction, text:str):
     start=time.time()
     res = openai.chat.completions.create(
-            model=gpt_model,
+            model=chat_model,
             messages=[{"role": "user", "content": text}]
         )
     res_text = res.choices[0].message.content
     end = time.time() - start
     await interaction.response.send_message(f"{res_text}\n\nSpeed:{end}")
+
+@tree.command(name="dalle",description="Dall-e-3のコマンド(画像)")
+async def main_gpt(interaction: discord.Interaction, text:str):
+    response = openai.images.generate(
+            model="dall-e-3",
+            prompt=text,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+    image_url = response.data[0].url
+    await asyncio.sleep(5)
+    embed = discord.Embed()
+    embed.set_image(url=image_url)
+    await interaction.response.send_message(embed=embed)
+
+@tree.command(name="whisper",description="Whisperのコマンド(音声)")
+async def test_command(interaction: discord.Interaction, text:str, audio: discord.Attachment):
+    try:
+        attachment = audio
+        file_name = attachment.filename
+        await attachment.save(file_name)
+        audio_file = open(file_name, "rb")
+
+        prompts = text
+        transcript = openai.audio.transcriptions.create(
+            file=audio_file,
+            model="whisper-1",
+            response_format="verbose_json",
+            timestamp_granularities=["segment"],
+            prompt = prompts
+        )
+
+        def convert_time(times):
+            if times%60 < 10:
+                sec = str(times % 60)[:1]
+                sec = "0"+sec
+                ms = str(times % 60)[2:5]
+            else:
+                sec = str(times % 60)[:2]
+                ms = str(times % 60)[3:6]
+            
+            if len(ms) == 1:
+              sec += "00"
+            elif len(ms) == 2:
+              sec += "0"
+            
+            return sec, ms
+
+        transcription = ""
+        for index, _dict in enumerate(transcript.segments):
+            cumsum_time = 0
+            index += 1
+            start_time = cumsum_time + _dict["start"]
+            end_time = cumsum_time + _dict["end"]
+            s_h, e_h = int(start_time//(60 * 60)), int(end_time//(60 * 60))
+            s_m, e_m = int(start_time//(60)), int(end_time//(60))
+            s_s, s_sm = convert_time(start_time)
+            e_s, e_sm = convert_time(end_time)
+        
+            transcription += f'{index}\n{s_h:02}:{s_m:02}:{s_s},{s_sm} --> {e_h:02}:{e_m:02}:{e_s},{e_sm}\n{_dict["text"]}\n\n'
+
+        #print(transcription)
+        with open('res.srt','w') as f:
+            f.write(transcription)
+        await interaction.response.send_message(file=discord.File('res.srt'))
+
+        # Remove the audio file from the local filesystem
+        os.remove(file_name)
+
+    except Exception as error:
+        await interaction.response.send_message(error)
+
+
 
 @client.event
 async def on_message(message):
