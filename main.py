@@ -42,12 +42,12 @@ class SelectView(View):
          await interaction.followup.send(f"チャットモデルを【{select.values[0]}】に変更しました")
 
 @tree.command(name="model_change",description="Chat-Gptのモデルの変更")
-async def main_gpt(interaction: discord.Interaction):
+async def chat_model_change(interaction: discord.Interaction):
     view = SelectView()
     await interaction.response.send_message("", view=view)
 
 @tree.command(name="chatgpt",description="Chat-Gptのコマンド")
-async def main_gpt(interaction: discord.Interaction, text:str):
+async def chat_gpt(interaction: discord.Interaction, text:str):
     start=time.time()
     res = openai.chat.completions.create(
             model=chat_model,
@@ -58,7 +58,7 @@ async def main_gpt(interaction: discord.Interaction, text:str):
     await interaction.response.send_message(f"{res_text}\n\nSpeed:{end}")
 
 @tree.command(name="dalle",description="Dall-e-3のコマンド(画像)")
-async def main_gpt(interaction: discord.Interaction, text:str):
+async def dalle(interaction: discord.Interaction, text:str):
     response = openai.images.generate(
             model="dall-e-3",
             prompt=text,
@@ -73,7 +73,7 @@ async def main_gpt(interaction: discord.Interaction, text:str):
     await interaction.response.send_message(embed=embed)
 
 @tree.command(name="whisper",description="Whisperのコマンド(音声)")
-async def test_command(interaction: discord.Interaction, text:str, audio: discord.Attachment):
+async def whisper(interaction: discord.Interaction, text:str, audio: discord.Attachment):
     try:
         attachment = audio
         file_name = attachment.filename
