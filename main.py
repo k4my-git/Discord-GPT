@@ -1,6 +1,8 @@
 import os
 import re
 import discord
+from discord.ui import Select, View
+from discord import app_commands
 import openai
 import asyncio
 
@@ -11,9 +13,48 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
+tree = app_commands.CommandTree(client)
+
+gpt_model="gpt-4o"
+
 @client.event
 async def on_ready():
     print(f'{client.user} loggin!')
+    await tree.sync()
+
+class SelectView(View):
+     @discord.ui.select(
+         cls=Select,
+         placeholder="モデルを選択してください",
+         options=[
+            discord.SelectOption(label="gpt-4o"),
+            discord.SelectOption(label="gpt-3.5-turbo-0125"),
+            discord.SelectOption(label="gpt-3.5-turbo-0613")
+        ]
+     )
+     async def selectMenu(self, interaction: discord.Interaction, select: Select):
+         global gpt_model
+         gpt_model = select.values
+         select.disabled = True
+         await interaction.response.edit_message(view=self)
+         await interaction.followup.send(f"モデルを【{select.values}】に変更しました")
+
+@tree.command(name="model_change",description="Chat-Gptのモデルの変更")
+async def main_gpt(interaction: discord.Interaction):
+    view = SelectView()
+    view.selectMenu.add_option(
+        label="モデルを選択してください"
+    )
+    await interaction.response.send_message("", view=view)
+
+@tree.command(name="gpt",description="Chat-Gptのコマンド")
+async def main_gpt(interaction: discord.Interaction, text:str):
+    res = openai.chat.completions.create(
+            model=gpt_model,
+            messages=[{"role": "user", "content": text}]
+        )
+    res_text = res.choices[0].message.content
+    await interaction.response.send_message(res_text,ephemeral=True)
 
 @client.event
 async def on_message(message):
