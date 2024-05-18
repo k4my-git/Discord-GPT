@@ -19,7 +19,6 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-
     if message.content.startswith('$'):
         res = openai.chat.completions.create(
             model="gpt-3.5-turbo-0613",
