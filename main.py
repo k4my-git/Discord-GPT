@@ -61,18 +61,21 @@ async def chat_gpt(interaction: discord.Interaction, text:str):
 @tree.command(name="dalle",description="Dall-e-3のコマンド(画像)")
 async def dalle(interaction: discord.Interaction, prompt:str):
     await interaction.response.defer()
-    response = openai.images.generate(
-            model="dall-e-3",
-            prompt=prompt,
-            size="1024x1024",
-            quality="standard",
-            n=1,
-        )
-    image_url = response.data[0].url
-    #await asyncio.sleep(5)
-    embed = discord.Embed()
-    embed.set_image(url=image_url)
-    await interaction.followup.send(embed=embed)
+    try:
+        response = openai.images.generate(
+              model="dall-e-3",
+              prompt=prompt,
+              size="1024x1024",
+              quality="standard",
+              n=1,
+            )
+        image_url = response.data[0].url
+        #await asyncio.sleep(5)
+        embed = discord.Embed()
+        embed.set_image(url=image_url)
+        await interaction.followup.send(embed=embed)
+    except:
+        await interaction.followup.send("安全システムの結果、リクエストは拒否されました。あなたのプロンプトには、当社の安全システムで許可されていないテキストが含まれている可能性があります。")
 
 @tree.command(name="whisper",description="Whisperのコマンド(音声)")
 async def whisper(interaction: discord.Interaction, prompt:str, audio: discord.Attachment):
