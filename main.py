@@ -49,14 +49,19 @@ async def chat_model_change(interaction: discord.Interaction):
 @tree.command(name="chatgpt",description="Chat-Gptのコマンド")
 async def chat_gpt(interaction: discord.Interaction, text:str):
     await interaction.response.defer()
-    start=time.time()
+    #start=time.time()
     res = openai.chat.completions.create(
             model=chat_model,
             messages=[{"role": "user", "content": text}]
         )
     res_text = res.choices[0].message.content
-    end = time.time() - start
-    await interaction.followup.send(f"{res_text}\n\nSpeed:{end}")
+    #end = time.time() - start
+    if len(res_text) > 2000:
+        with open('res.txt','w') as f:
+            f.write(res_text)
+        await interaction.followup.send(file=discord.File('res.txt'))
+    else:
+        await interaction.followup.send(f"{res_text}")
 
 @tree.command(name="dalle",description="Dall-e-3のコマンド(画像)")
 async def dalle(interaction: discord.Interaction, prompt:str):
