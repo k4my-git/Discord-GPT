@@ -16,7 +16,7 @@ client = discord.Client(intents=intents)
 
 tree = app_commands.CommandTree(client)
 
-chat_model="gpt-4o"
+chat_model="gpt-4o-mini"
 #audio_model="gpt-4o"
 
 @client.event
@@ -30,6 +30,7 @@ class SelectView(View):
          placeholder="モデルを選択してください",
          options=[
             discord.SelectOption(label="gpt-4o"),
+            discord.SelectOption(label="gpt-4o-mini"),
             discord.SelectOption(label="gpt-3.5-turbo-0125"),
             discord.SelectOption(label="gpt-3.5-turbo-0613")
         ]
