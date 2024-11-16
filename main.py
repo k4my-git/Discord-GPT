@@ -142,7 +142,6 @@ async def whisper(interaction: discord.Interaction, prompt:str, audio: discord.A
         await interaction.followup.send(error)
 
 
-
 @client.event
 async def on_message(message):
     if message.author == client.user:
